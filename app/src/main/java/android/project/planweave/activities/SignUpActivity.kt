@@ -4,8 +4,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.project.planweave.R
 import android.project.planweave.databinding.ActivitySignUpBinding
-import android.view.Window
-import android.view.WindowManager
 
 class SignUpActivity : AppCompatActivity() {
 

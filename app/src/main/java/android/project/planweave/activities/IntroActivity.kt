@@ -16,6 +16,7 @@ class IntroActivity : AppCompatActivity(), View.OnClickListener {
         setContentView(binding?.root)
 
         binding?.btnSignup?.setOnClickListener(this@IntroActivity)
+        binding?.btnSignin?.setOnClickListener(this@IntroActivity)
     }
 
     override fun onDestroy() {
@@ -27,6 +28,9 @@ class IntroActivity : AppCompatActivity(), View.OnClickListener {
         when(view?.id) {
             R.id.btn_signup -> {
                 startActivity(Intent(this@IntroActivity, SignUpActivity::class.java))
+            }
+            R.id.btn_signin -> {
+                startActivity(Intent(this@IntroActivity, SignInActivity::class.java))
             }
         }
 
