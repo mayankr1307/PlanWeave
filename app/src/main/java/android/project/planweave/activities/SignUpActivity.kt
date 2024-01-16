@@ -13,17 +13,8 @@ class SignUpActivity : AppCompatActivity() {
         binding = ActivitySignUpBinding.inflate(layoutInflater)
         setContentView(binding?.root)
 
-        setupToolBar()
+        binding?.ivBack?.setOnClickListener { onBackPressed() }
     }
-
-    private fun setupToolBar() {
-        setSupportActionBar(binding?.tbSignup)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.setHomeAsUpIndicator(R.drawable.ic_back)
-        binding?.tbSignup?.setNavigationOnClickListener { onBackPressed() }
-        supportActionBar?.title = "Sign Up"
-    }
-
     override fun onDestroy() {
         binding = null
         super.onDestroy()

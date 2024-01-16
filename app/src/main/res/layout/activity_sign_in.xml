@@ -7,15 +7,30 @@
     tools:context=".activities.SignInActivity"
     android:background="@drawable/ic_signup_bg"
     >
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/tb_signin"
-        android:layout_width="match_parent"
+    <ImageView
+        android:id="@+id/iv_back"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_gravity="left|center"
+        android:src="@drawable/ic_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_toolbar_title"
+        app:layout_constraintBottom_toBottomOf="@id/tv_toolbar_title"
+        tools:ignore="ContentDescription,RtlHardcoded" />
+
+    <TextView
+        android:id="@+id/tv_toolbar_title"
+        android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
-        app:title="Sign In"
-        app:titleTextColor="@color/black"
-        app:navigationIcon="@drawable/ic_back"
+        android:gravity="center_vertical"
+        android:text="Sign In"
+        android:textColor="@color/black"
+        android:textSize="26sp"
+        android:layout_marginStart="15dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/iv_back"
         app:layout_constraintTop_toTopOf="parent"
-        />
+        tools:ignore="HardcodedText" />
 
     <TextView
         android:id="@+id/tv_message"
@@ -86,7 +101,7 @@
                     android:id="@+id/btn_signin"
                     android:layout_width="250dp"
                     android:layout_height="match_parent"
-                    android:foreground="@drawable/shape_button_rounded" />
+                    android:foreground="@drawable/ripple_button_rounded" />
 
                 <TextView
                     android:layout_width="wrap_content"

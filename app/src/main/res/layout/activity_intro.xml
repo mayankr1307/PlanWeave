@@ -70,7 +70,7 @@
             android:id="@+id/btn_signin"
             android:layout_width="323dp"
             android:layout_height="match_parent"
-            android:foreground="@drawable/shape_button_rounded" />
+            android:foreground="@drawable/ripple_button_rounded" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -98,7 +98,7 @@
             android:id="@+id/btn_signup"
             android:layout_width="323dp"
             android:layout_height="match_parent"
-            android:foreground="@drawable/shape_button_rounded2" />
+            android:foreground="@drawable/ripple_button_rounded2" />
 
         <TextView
             android:layout_width="wrap_content"

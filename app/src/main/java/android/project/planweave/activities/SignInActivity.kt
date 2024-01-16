@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.project.planweave.R
 import android.project.planweave.databinding.ActivitySignInBinding
+import androidx.appcompat.widget.Toolbar
 
 class SignInActivity : AppCompatActivity() {
 
@@ -12,14 +13,9 @@ class SignInActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySignInBinding.inflate(layoutInflater)
-        setContentView(R.layout.activity_sign_in)
+        setContentView(binding?.root)
 
-        setupToolBar()
-    }
-    private fun setupToolBar() {
-        setSupportActionBar(binding?.tbSignin)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        binding?.tbSignin?.setNavigationOnClickListener { onBackPressed() }
+        binding?.ivBack?.setOnClickListener { onBackPressed() }
     }
 
     override fun onDestroy() {
