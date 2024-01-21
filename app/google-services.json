@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "936262620285",
+    "project_id": "planweave-6b73c",
+    "storage_bucket": "planweave-6b73c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:936262620285:android:6bf60810c7e5cffae64d14",
+        "android_client_info": {
+          "package_name": "android.project.planweave"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBm4X5KBAWF06h3VOC3pP7TVR60pDG9Csw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
