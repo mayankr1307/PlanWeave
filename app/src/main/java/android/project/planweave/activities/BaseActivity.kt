@@ -6,12 +6,13 @@ import android.os.Bundle
 import android.os.Handler
 import android.project.planweave.R
 import android.project.planweave.databinding.ActivityBaseBinding
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 
-class BaseActivity : AppCompatActivity() {
+open class BaseActivity : AppCompatActivity() {
 
     private var doubleBackToExitPressedOnce = false
 
@@ -24,9 +25,12 @@ class BaseActivity : AppCompatActivity() {
         setContentView(binding?.root)
     }
 
-    fun showProgressDialog() {
+    fun showProgressDialog(message: String) {
         progressDialog = Dialog(this@BaseActivity)
         progressDialog.setContentView(R.layout.progress_dialog)
+
+        progressDialog.findViewById<TextView>(R.id.tv_progress_text)
+            .text = message
 
         progressDialog.show()
     }
