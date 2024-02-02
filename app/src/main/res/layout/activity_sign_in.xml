@@ -66,6 +66,7 @@
             android:orientation="vertical">
 
             <EditText
+                android:id="@+id/et_email"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Email"
@@ -75,9 +76,10 @@
                 android:autofillHints="emailAddress"
                 android:layout_marginTop="15dp"
                 android:layout_marginHorizontal="5dp"
-                tools:ignore="HardcodedText" />
+                tools:ignore="HardcodedText,TextFields" />
 
             <EditText
+                android:id="@+id/et_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Password"
@@ -87,7 +89,7 @@
                 android:autofillHints="password"
                 android:layout_marginTop="15dp"
                 android:layout_marginHorizontal="5dp"
-                tools:ignore="HardcodedText" />
+                tools:ignore="HardcodedText,TextFields" />
 
             <FrameLayout
                 android:id="@+id/fl_signin"
