@@ -1,9 +1,9 @@
 package android.project.planweave.activities
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.project.planweave.R
 import android.project.planweave.databinding.ActivitySignUpBinding
+import android.project.planweave.firebase.FireStoreClass
+import android.project.planweave.models.User
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -32,17 +32,11 @@ class SignUpActivity : BaseActivity() {
             showProgressDialog("Please wait...")
             FirebaseAuth.getInstance()
                 .createUserWithEmailAndPassword(email, password).addOnCompleteListener { task ->
-                    hideProgressDialog()
                     if (task.isSuccessful) {
                         val firebaseUser: FirebaseUser = task.result!!.user!!
                         val registeredEmail = firebaseUser.email!!
-                        Toast.makeText(
-                            this@SignUpActivity,
-                            "$name You have successfully registered the email addres $registeredEmail",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        FirebaseAuth.getInstance().signOut()
-                        finish()
+                        val user = User(firebaseUser.uid, name, registeredEmail)
+                        FireStoreClass().registerUser(this@SignUpActivity, user)
                     } else {
                         Toast.makeText(
                             this@SignUpActivity,
@@ -52,6 +46,17 @@ class SignUpActivity : BaseActivity() {
                     }
                 }
         }
+    }
+
+    fun userRegisteredSuccess() {
+        Toast.makeText(
+            this@SignUpActivity,
+            "You have successfully registered",
+            Toast.LENGTH_LONG
+        ).show()
+        hideProgressDialog()
+        FirebaseAuth.getInstance().signOut()
+        finish()
     }
 
     private fun validateForm(name: String, email: String, password: String): Boolean {
