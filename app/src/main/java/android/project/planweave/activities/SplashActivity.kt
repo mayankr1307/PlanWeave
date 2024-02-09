@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.project.planweave.R
+import android.project.planweave.firebase.FireStoreClass
 import android.view.Window
 import android.view.WindowManager
 import android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN
@@ -28,9 +29,17 @@ class SplashActivity : AppCompatActivity() {
 
             }
             override fun onFinish() {
-                val intent = Intent(this@SplashActivity, IntroActivity::class.java)
-                startActivity(intent)
-                finish()
+                val currentUserID = FireStoreClass().getCurrentUserId()
+                if(currentUserID.isNotEmpty()) {
+                    val intent = Intent(this@SplashActivity, MainActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                }else {
+                    val intent = Intent(this@SplashActivity, IntroActivity::class.java)
+                    startActivity(intent)
+                    finish()
+                }
+
             }
         }.start()
     }
