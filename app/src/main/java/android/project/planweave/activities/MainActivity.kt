@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.project.planweave.R
 import android.project.planweave.databinding.ActivityMainBinding
+import android.view.Menu
 
 class MainActivity : AppCompatActivity() {
 
@@ -13,7 +14,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding?.root)
     }
-
     override fun onDestroy() {
         binding = null
         super.onDestroy()
