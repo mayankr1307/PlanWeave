@@ -7,6 +7,7 @@ import android.project.planweave.R
 import android.project.planweave.databinding.ActivitySignInBinding
 import android.project.planweave.firebase.FireStoreClass
 import android.project.planweave.models.User
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import com.google.firebase.auth.FirebaseAuth
@@ -47,6 +48,7 @@ class SignInActivity : BaseActivity() {
                             "Authentication Failed: ${task.exception}",
                             Toast.LENGTH_LONG
                         ).show()
+                        Log.e("Authentication Failed: ", task.exception.toString())
                     }
                 }
 
