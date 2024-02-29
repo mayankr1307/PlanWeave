@@ -5,13 +5,19 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.project.planweave.R
 import android.project.planweave.databinding.ActivityMainBinding
+import android.project.planweave.firebase.FireStoreClass
+import android.project.planweave.models.User
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
+import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import de.hdodenhof.circleimageview.CircleImageView
 
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -24,6 +30,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         setupActionBar()
 
         binding?.navView?.setNavigationItemSelectedListener(this@MainActivity)
+        FireStoreClass().signInUser(this@MainActivity)
+
     }
 
     private fun setupActionBar() {
@@ -77,5 +85,25 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         binding?.drawerLayout?.closeDrawer(GravityCompat.START)
 
         return true
+    }
+
+    fun updateNavigationUserDetails(user: User?) {
+        val navigationView: NavigationView = findViewById(R.id.nav_view)
+        val headerView: View = navigationView.getHeaderView(0)
+
+        val myImageView = headerView.findViewById<CircleImageView>(R.id.nav_user_image)
+
+        if (user != null) {
+            Glide
+                .with(this@MainActivity)
+                .load(user.image)
+                .centerCrop()
+                .placeholder(R.drawable.ic_user_place_holder)
+                .into(myImageView)
+        }
+
+        if (user != null) {
+            headerView.findViewById<TextView>(R.id.tv_username).text = user.name
+        }
     }
 }

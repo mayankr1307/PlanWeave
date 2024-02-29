@@ -1,5 +1,7 @@
 package android.project.planweave.firebase
 
+import android.app.Activity
+import android.project.planweave.activities.MainActivity
 import android.project.planweave.activities.SignInActivity
 import android.project.planweave.activities.SignUpActivity
 import android.project.planweave.models.User
@@ -23,16 +25,31 @@ class FireStoreClass {
             }
     }
 
-    fun signInUser(activity: SignInActivity) {
+    fun signInUser(activity: Activity) {
         mFireStore.collection(Constants.USERS)
             .document(getCurrentUserId())
             .get()
             .addOnSuccessListener {document ->
                 val loggedInUser = document.toObject(User::class.java)
-                if(loggedInUser != null)
-                    activity.signInSuccess(loggedInUser)
-            }.addOnFailureListener {
-                    e->
+                when(activity) {
+                    is SignInActivity -> {
+                        if(loggedInUser != null)
+                            activity.signInSuccess(loggedInUser)
+                    }
+                    is MainActivity -> {
+                        activity.updateNavigationUserDetails(loggedInUser)
+                    }
+                }
+
+            }.addOnFailureListener {e->
+                when(activity) {
+                    is SignInActivity -> {
+                        activity.hideProgressDialog()
+                    }
+                    is MainActivity -> {
+                        activity.hideProgressDialog()
+                    }
+                }
                 Log.e(activity.javaClass.simpleName, "Error writing document", e)
             }
     }
