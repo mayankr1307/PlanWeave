@@ -2,6 +2,7 @@ package android.project.planweave.firebase
 
 import android.app.Activity
 import android.project.planweave.activities.MainActivity
+import android.project.planweave.activities.MyProfileActivity
 import android.project.planweave.activities.SignInActivity
 import android.project.planweave.activities.SignUpActivity
 import android.project.planweave.models.User
@@ -25,7 +26,7 @@ class FireStoreClass {
             }
     }
 
-    fun signInUser(activity: Activity) {
+    fun loadUserData(activity: Activity) {
         mFireStore.collection(Constants.USERS)
             .document(getCurrentUserId())
             .get()
@@ -38,6 +39,11 @@ class FireStoreClass {
                     }
                     is MainActivity -> {
                         activity.updateNavigationUserDetails(loggedInUser)
+                    }
+                    is MyProfileActivity -> {
+                        if (loggedInUser != null) {
+                            activity.setUserDataInUI(loggedInUser)
+                        }
                     }
                 }
 

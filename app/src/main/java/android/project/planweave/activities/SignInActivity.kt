@@ -1,15 +1,12 @@
 package android.project.planweave.activities
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.project.planweave.R
 import android.project.planweave.databinding.ActivitySignInBinding
 import android.project.planweave.firebase.FireStoreClass
 import android.project.planweave.models.User
 import android.util.Log
 import android.widget.Toast
-import androidx.appcompat.widget.Toolbar
 import com.google.firebase.auth.FirebaseAuth
 
 class SignInActivity : BaseActivity() {
@@ -41,7 +38,7 @@ class SignInActivity : BaseActivity() {
                 .addOnCompleteListener(this@SignInActivity) { task ->
                     hideProgressDialog()
                     if(task.isSuccessful) {
-                        FireStoreClass().signInUser(this@SignInActivity)
+                        FireStoreClass().loadUserData(this@SignInActivity)
                     }else {
                         Toast.makeText(
                             this@SignInActivity,

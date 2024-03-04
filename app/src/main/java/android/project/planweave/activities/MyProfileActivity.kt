@@ -1,9 +1,13 @@
 package android.project.planweave.activities
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.project.planweave.R
 import android.project.planweave.databinding.ActivityMyProfileBinding
+import android.project.planweave.firebase.FireStoreClass
+import android.project.planweave.models.User
+import android.widget.ImageView
+import com.bumptech.glide.Glide
+import de.hdodenhof.circleimageview.CircleImageView
 
 class MyProfileActivity : BaseActivity() {
 
@@ -15,6 +19,8 @@ class MyProfileActivity : BaseActivity() {
         setContentView(binding?.root)
 
         setupActionBar()
+
+        FireStoreClass().loadUserData(this)
     }
 
     private fun setupActionBar() {
@@ -27,6 +33,24 @@ class MyProfileActivity : BaseActivity() {
 
         binding?.tbProfileActivity?.setNavigationOnClickListener {
             onBackPressed()
+        }
+    }
+
+    fun setUserDataInUI(user: User) {
+
+        val myImageView: CircleImageView? = binding?.ivUserImage
+
+        Glide
+            .with(this@MyProfileActivity)
+            .load(user.image)
+            .centerCrop()
+            .placeholder(R.drawable.ic_user_place_holder)
+            .into(myImageView!!)
+
+        binding?.etName?.setText(user.name)
+        binding?.etEmail?.setText(user.email)
+        if(user.mobile != 0L) {
+            binding?.etMobile?.setText(user.mobile.toString())
         }
     }
 
