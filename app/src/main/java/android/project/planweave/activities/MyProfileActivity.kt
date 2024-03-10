@@ -1,17 +1,46 @@
 package android.project.planweave.activities
 
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.project.planweave.R
 import android.project.planweave.databinding.ActivityMyProfileBinding
 import android.project.planweave.firebase.FireStoreClass
 import android.project.planweave.models.User
+import android.provider.MediaStore
+import android.util.Log
+import android.webkit.MimeTypeMap
 import android.widget.ImageView
+import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import de.hdodenhof.circleimageview.CircleImageView
+import java.io.IOException
 
 class MyProfileActivity : BaseActivity() {
 
     private var binding: ActivityMyProfileBinding? = null
+
+    private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
+    private var isReadPermissionGranted = false
+
+    private var mProfileImageURL: String = ""
+
+    companion object {
+        private const val READ_STORAGE_PERMISSION_CODE = 1
+        private const val PICK_IMAGE_REQUEST_CODE = 2
+    }
+
+    private var mSelectedImageFileUri: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,6 +50,126 @@ class MyProfileActivity : BaseActivity() {
         setupActionBar()
 
         FireStoreClass().loadUserData(this)
+
+        permissionLauncher = registerForActivityResult(ActivityResultContracts.
+        RequestMultiplePermissions()) { permissions ->
+          isReadPermissionGranted = permissions[if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+              Manifest.permission.READ_MEDIA_IMAGES
+          } else {
+              TODO("VERSION.SDK_INT < TIRAMISU")
+          }]?: isReadPermissionGranted
+        }
+
+        binding?.ivProfileUserImage?.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    this@MyProfileActivity,
+                    Manifest.permission.READ_MEDIA_IMAGES
+                )
+                == PackageManager.PERMISSION_GRANTED
+            ) {
+                showImageChooser()
+            } else {
+                requestPermission()
+            }
+        }
+
+        binding?.btnUpdate?.setOnClickListener {
+            if(mSelectedImageFileUri != null) {
+                uploadUserImage()
+            }
+        }
+    }
+
+    private fun requestPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            isReadPermissionGranted = ContextCompat.checkSelfPermission(
+                this@MyProfileActivity,
+                Manifest.permission.READ_MEDIA_IMAGES
+            ) == PackageManager.PERMISSION_GRANTED
+        }
+
+        val permissionRequest: MutableList<String> = ArrayList()
+
+        if(!isReadPermissionGranted) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                permissionRequest.add(Manifest.permission.READ_MEDIA_IMAGES)
+            }
+        }
+
+        if(permissionRequest.isNotEmpty()) {
+            permissionLauncher.launch(permissionRequest.toTypedArray())
+        }
+    }
+
+    private fun uploadUserImage() {
+        showProgressDialog("Please wait...")
+
+        if(mSelectedImageFileUri != null) {
+            val sRef: StorageReference =
+                FirebaseStorage.getInstance().reference.child("USER_IMAGE" +
+                        System.currentTimeMillis()
+                        + "." +
+                        getFileExtension(mSelectedImageFileUri))
+
+            sRef.putFile(mSelectedImageFileUri!!).addOnSuccessListener {
+                taskSnapshot ->
+                Log.i(
+                    "Firebase Image URL",
+                    taskSnapshot.metadata!!.reference!!.downloadUrl.toString()
+                )
+
+                taskSnapshot.metadata!!.reference!!.downloadUrl.addOnSuccessListener {
+                    uri ->
+                    Log.i(
+                        "Downloadable Image URL",
+                        uri.toString()
+                    )
+                    mProfileImageURL = uri.toString()
+                    hideProgressDialog()
+
+                    // TODO UpdateUserProfileData
+                }
+            }.addOnFailureListener {
+                exception ->
+                Toast.makeText(
+                    this@MyProfileActivity,
+                    exception.message,
+                    Toast.LENGTH_LONG
+                ).show()
+
+                hideProgressDialog()
+            }
+        }
+    }
+
+    private fun getFileExtension(uri: Uri?): String? {
+        return MimeTypeMap.getSingleton().getExtensionFromMimeType(contentResolver.getType(uri!!))
+
+    }
+    private fun showImageChooser() {
+        val galleryIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        startActivityForResult(galleryIntent, PICK_IMAGE_REQUEST_CODE)
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(resultCode == Activity.RESULT_OK && requestCode == PICK_IMAGE_REQUEST_CODE && data!!.data != null) {
+            mSelectedImageFileUri = data.data
+
+            val myImageView: CircleImageView? = binding?.ivProfileUserImage
+            try {
+                Glide
+                    .with(this@MyProfileActivity)
+                    .load(mSelectedImageFileUri)
+                    .centerCrop()
+                    .placeholder(R.drawable.ic_user_place_holder)
+                    .into(myImageView!!)
+            }catch (e: IOException) {
+                e.printStackTrace()
+            }
+
+        }
     }
 
     private fun setupActionBar() {
@@ -38,7 +187,7 @@ class MyProfileActivity : BaseActivity() {
 
     fun setUserDataInUI(user: User) {
 
-        val myImageView: CircleImageView? = binding?.ivUserImage
+        val myImageView: CircleImageView? = binding?.ivProfileUserImage
 
         Glide
             .with(this@MyProfileActivity)
