@@ -1,11 +1,13 @@
 package android.project.planweave.activities
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.project.planweave.R
 import android.project.planweave.databinding.ActivityMainBinding
 import android.project.planweave.firebase.FireStoreClass
 import android.project.planweave.models.User
+import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
@@ -19,6 +21,10 @@ import de.hdodenhof.circleimageview.CircleImageView
 class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     private var binding: ActivityMainBinding? = null
+
+    companion object {
+        const val MY_PROFILE_REQUEST_CODE: Int = 11
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -56,6 +62,16 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(resultCode == Activity.RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE) {
+            FireStoreClass().loadUserData(this@MainActivity)
+        }else {
+            Log.e("Cancelled", "Cancelled")
+        }
+
+    }
+
     override fun onDestroy() {
         binding = null
         super.onDestroy()
@@ -64,7 +80,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.nav_my_profile -> {
-                startActivity(Intent(this@MainActivity, MyProfileActivity::class.java))
+                startActivityForResult(Intent(this@MainActivity, MyProfileActivity::class.java), MY_PROFILE_REQUEST_CODE)
             }
             R.id.nav_sign_out -> {
                 FirebaseAuth.getInstance().signOut()

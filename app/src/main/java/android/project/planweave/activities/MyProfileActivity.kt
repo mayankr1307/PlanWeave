@@ -11,6 +11,7 @@ import android.project.planweave.R
 import android.project.planweave.databinding.ActivityMyProfileBinding
 import android.project.planweave.firebase.FireStoreClass
 import android.project.planweave.models.User
+import android.project.planweave.utils.Constants
 import android.provider.MediaStore
 import android.util.Log
 import android.webkit.MimeTypeMap
@@ -34,6 +35,7 @@ class MyProfileActivity : BaseActivity() {
     private var isReadPermissionGranted = false
 
     private var mProfileImageURL: String = ""
+    private lateinit var mUserDetails: User
 
     companion object {
         private const val READ_STORAGE_PERMISSION_CODE = 1
@@ -76,6 +78,9 @@ class MyProfileActivity : BaseActivity() {
         binding?.btnUpdate?.setOnClickListener {
             if(mSelectedImageFileUri != null) {
                 uploadUserImage()
+            }else {
+                showProgressDialog("Please wait...")
+                updateUserProfileData()
             }
         }
     }
@@ -99,6 +104,28 @@ class MyProfileActivity : BaseActivity() {
         if(permissionRequest.isNotEmpty()) {
             permissionLauncher.launch(permissionRequest.toTypedArray())
         }
+    }
+
+    fun updateUserProfileData() {
+        val userHashMap = HashMap<String, Any>()
+        var anyChanges = false
+
+        if(mProfileImageURL.isNotEmpty() && mProfileImageURL != mUserDetails.image) {
+            userHashMap[Constants.IMAGE] = mProfileImageURL
+            anyChanges = true
+        }
+
+        if(binding?.etName?.text.toString() != mUserDetails.name) {
+            userHashMap[Constants.NAME] = binding?.etName?.text.toString()
+            anyChanges = true
+        }
+
+        if(binding?.etMobile?.text.toString() != mUserDetails.mobile.toString()) {
+            userHashMap[Constants.MOBILE] = binding?.etMobile?.text.toString().toLong()
+            anyChanges = true
+        }
+
+        if(anyChanges)  FireStoreClass().updateUserProfileData(this@MyProfileActivity,userHashMap)
     }
 
     private fun uploadUserImage() {
@@ -125,9 +152,8 @@ class MyProfileActivity : BaseActivity() {
                         uri.toString()
                     )
                     mProfileImageURL = uri.toString()
-                    hideProgressDialog()
 
-                    // TODO UpdateUserProfileData
+                    updateUserProfileData()
                 }
             }.addOnFailureListener {
                 exception ->
@@ -187,6 +213,8 @@ class MyProfileActivity : BaseActivity() {
 
     fun setUserDataInUI(user: User) {
 
+        mUserDetails = user
+
         val myImageView: CircleImageView? = binding?.ivProfileUserImage
 
         Glide
@@ -201,6 +229,12 @@ class MyProfileActivity : BaseActivity() {
         if(user.mobile != 0L) {
             binding?.etMobile?.setText(user.mobile.toString())
         }
+    }
+
+    fun profileUpdateSuccess() {
+        hideProgressDialog()
+        setResult(Activity.RESULT_OK)
+        finish()
     }
 
     override fun onDestroy() {
