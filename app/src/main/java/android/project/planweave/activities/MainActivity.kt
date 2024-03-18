@@ -7,6 +7,7 @@ import android.project.planweave.R
 import android.project.planweave.databinding.ActivityMainBinding
 import android.project.planweave.firebase.FireStoreClass
 import android.project.planweave.models.User
+import android.project.planweave.utils.Constants
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
@@ -22,6 +23,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     private var binding: ActivityMainBinding? = null
 
+    private lateinit var mUserName: String
+
     companion object {
         const val MY_PROFILE_REQUEST_CODE: Int = 11
     }
@@ -36,8 +39,10 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         FireStoreClass().loadUserData(this@MainActivity)
 
         binding?.appBarLayout?.fabCreateBoard?.setOnClickListener {
-            startActivity(Intent(this@MainActivity,
-                CreateBoardActivity::class.java))
+            val intent = Intent(this@MainActivity,
+                CreateBoardActivity::class.java)
+            intent.putExtra(Constants.NAME, mUserName)
+            startActivity(intent)
         }
     }
 
@@ -101,6 +106,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
     }
 
     fun updateNavigationUserDetails(user: User?) {
+        mUserName = user!!.name
         val navigationView: NavigationView = findViewById(R.id.nav_view)
         val headerView: View = navigationView.getHeaderView(0)
 

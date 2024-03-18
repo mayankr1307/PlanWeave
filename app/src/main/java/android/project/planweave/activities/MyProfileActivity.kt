@@ -38,7 +38,6 @@ class MyProfileActivity : BaseActivity() {
     private lateinit var mUserDetails: User
 
     companion object {
-        private const val READ_STORAGE_PERMISSION_CODE = 1
         private const val PICK_IMAGE_REQUEST_CODE = 2
     }
 

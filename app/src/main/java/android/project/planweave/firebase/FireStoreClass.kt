@@ -1,10 +1,12 @@
 package android.project.planweave.firebase
 
 import android.app.Activity
+import android.project.planweave.activities.CreateBoardActivity
 import android.project.planweave.activities.MainActivity
 import android.project.planweave.activities.MyProfileActivity
 import android.project.planweave.activities.SignInActivity
 import android.project.planweave.activities.SignUpActivity
+import android.project.planweave.models.Board
 import android.project.planweave.models.User
 import android.project.planweave.utils.Constants
 import android.util.Log
@@ -24,6 +26,26 @@ class FireStoreClass {
             }.addOnFailureListener {
                 e->
                 Log.e(activity.javaClass.simpleName, "Error writing document", e)
+            }
+    }
+
+    fun createBoard(activity: CreateBoardActivity, board: Board) {
+        mFireStore.collection(Constants.BOARDS)
+            .document()
+            .set(board, SetOptions.merge())
+            .addOnSuccessListener {
+                Log.e(activity.javaClass.simpleName, "Board created successfully.")
+                Toast.makeText(
+                    activity,
+                    "Board created successfully.",
+                    Toast.LENGTH_SHORT
+                ).show()
+                activity.boardCreatedSuccessfully()
+            }.addOnFailureListener {
+                exception ->
+                activity.hideProgressDialog()
+                Log.e(activity.javaClass.simpleName, "Error while creating board.", exception)
+
             }
     }
 
