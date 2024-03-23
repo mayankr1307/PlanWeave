@@ -4,8 +4,10 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.project.planweave.R
+import android.project.planweave.adapters.BoardItemsAdapter
 import android.project.planweave.databinding.ActivityMainBinding
 import android.project.planweave.firebase.FireStoreClass
+import android.project.planweave.models.Board
 import android.project.planweave.models.User
 import android.project.planweave.utils.Constants
 import android.util.Log
@@ -14,6 +16,7 @@ import android.view.View
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -27,6 +30,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
     companion object {
         const val MY_PROFILE_REQUEST_CODE: Int = 11
+        const val CREATE_BOARD_REQUEST_CODE: Int = 12
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,13 +40,31 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         setupActionBar()
 
         binding?.navView?.setNavigationItemSelectedListener(this@MainActivity)
-        FireStoreClass().loadUserData(this@MainActivity)
+        FireStoreClass().loadUserData(this@MainActivity, true)
 
         binding?.appBarLayout?.fabCreateBoard?.setOnClickListener {
             val intent = Intent(this@MainActivity,
                 CreateBoardActivity::class.java)
             intent.putExtra(Constants.NAME, mUserName)
-            startActivity(intent)
+            startActivityForResult(intent, CREATE_BOARD_REQUEST_CODE)
+        }
+    }
+
+    fun populateBoarDListToUI(boardsList: ArrayList<Board>) {
+        hideProgressDialog()
+
+        if(boardsList.size > 0) {
+            binding?.appBarLayout?.mainContent?.rvBoardList?.visibility = View.VISIBLE
+            binding?.appBarLayout?.mainContent?.tvNoBoardsAvailable?.visibility = View.GONE
+
+            binding?.appBarLayout?.mainContent?.rvBoardList?.layoutManager = LinearLayoutManager(this@MainActivity)
+            binding?.appBarLayout?.mainContent?.rvBoardList?.setHasFixedSize(true)
+
+            val adapter = BoardItemsAdapter(this@MainActivity, boardsList)
+            binding?.appBarLayout?.mainContent?.rvBoardList?.adapter = adapter
+        }else {
+            binding?.appBarLayout?.mainContent?.rvBoardList?.visibility = View.GONE
+            binding?.appBarLayout?.mainContent?.tvNoBoardsAvailable?.visibility = View.VISIBLE
         }
     }
 
@@ -75,6 +97,8 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == Activity.RESULT_OK && requestCode == MY_PROFILE_REQUEST_CODE) {
             FireStoreClass().loadUserData(this@MainActivity)
+        } else if(resultCode == Activity.RESULT_OK && requestCode == CREATE_BOARD_REQUEST_CODE) {
+            FireStoreClass().getBoardsList(this@MainActivity)
         }else {
             Log.e("Cancelled", "Cancelled")
         }
@@ -105,7 +129,7 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
         return true
     }
 
-    fun updateNavigationUserDetails(user: User?) {
+    fun updateNavigationUserDetails(user: User?, readBoardsList: Boolean) {
         mUserName = user!!.name
         val navigationView: NavigationView = findViewById(R.id.nav_view)
         val headerView: View = navigationView.getHeaderView(0)
@@ -123,6 +147,11 @@ class MainActivity : BaseActivity(), NavigationView.OnNavigationItemSelectedList
 
         if (user != null) {
             headerView.findViewById<TextView>(R.id.tv_username).text = user.name
+        }
+
+        if(readBoardsList) {
+            showProgressDialog("Please wait...")
+            FireStoreClass().getBoardsList(this@MainActivity)
         }
     }
 }
