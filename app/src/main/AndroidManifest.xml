@@ -17,10 +17,15 @@
         android:theme="@style/Theme.PlanWeave"
         tools:targetApi="31">
         <activity
-            android:name=".activities.CreateBoardActivity"
+            android:name=".activities.TaskListActivity"
             android:exported="false"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity"/>
+        <activity
+            android:name=".activities.CreateBoardActivity"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            tools:ignore="LockedOrientationActivity" />
         <activity
             android:name=".activities.MyProfileActivity"
             android:exported="false"
