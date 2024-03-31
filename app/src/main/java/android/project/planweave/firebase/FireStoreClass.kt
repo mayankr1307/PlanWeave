@@ -6,6 +6,7 @@ import android.project.planweave.activities.MainActivity
 import android.project.planweave.activities.MyProfileActivity
 import android.project.planweave.activities.SignInActivity
 import android.project.planweave.activities.SignUpActivity
+import android.project.planweave.activities.TaskListActivity
 import android.project.planweave.models.Board
 import android.project.planweave.models.User
 import android.project.planweave.utils.Constants
@@ -14,6 +15,7 @@ import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.toObject
 
 class FireStoreClass {
     private val mFireStore = FirebaseFirestore.getInstance()
@@ -140,5 +142,20 @@ class FireStoreClass {
         if(currentUser != null)
                 currentUserID = currentUser.uid
         return currentUserID
+    }
+
+    fun getBoardDetails(activity: TaskListActivity, documentId: String) {
+        mFireStore.collection(Constants.BOARDS)
+            .document(documentId)
+            .get()
+            .addOnSuccessListener {
+                    document ->
+                Log.i(activity.javaClass.simpleName, document.toString())
+                activity.boardDetails(document.toObject<Board>(Board::class.java)!!)
+            }.addOnFailureListener {
+                    e ->
+                activity.hideProgressDialog()
+                Log.e(activity.javaClass.simpleName, "Error while creating board.", e)
+            }
     }
 }
