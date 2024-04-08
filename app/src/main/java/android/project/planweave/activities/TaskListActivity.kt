@@ -3,10 +3,13 @@ package android.project.planweave.activities
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.project.planweave.R
+import android.project.planweave.adapters.TaskListItemsAdapter
 import android.project.planweave.databinding.ActivityTaskListBinding
 import android.project.planweave.firebase.FireStoreClass
 import android.project.planweave.models.Board
+import android.project.planweave.models.Task
 import android.project.planweave.utils.Constants
+import androidx.recyclerview.widget.LinearLayoutManager
 
 class TaskListActivity : BaseActivity() {
 
@@ -29,6 +32,20 @@ class TaskListActivity : BaseActivity() {
     fun boardDetails(board: Board) {
         hideProgressDialog()
         setupActionBar(board.name)
+
+        val addTaskList = Task("add_list")
+        board.taskList.add(addTaskList)
+
+        binding?.rvTaskList?.layoutManager = LinearLayoutManager(
+            this@TaskListActivity,
+            LinearLayoutManager.HORIZONTAL,
+            false
+        )
+        binding?.rvTaskList?.setHasFixedSize(true)
+
+        val adapter = TaskListItemsAdapter(this, board.taskList)
+
+        binding?.rvTaskList?.adapter = adapter
     }
 
     private fun setupActionBar(title: String) {

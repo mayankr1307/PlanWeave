@@ -9,7 +9,7 @@ data class Board(
     val createdBy: String = "",
     val assignedTo: ArrayList<String> = ArrayList(),
     var documentId: String = "",
-    var taskList: java.util.ArrayList<Task>? = ArrayList()
+    var taskList: java.util.ArrayList<Task> = ArrayList()
 ):Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString().toString(),
@@ -17,7 +17,7 @@ data class Board(
         parcel.readString().toString(),
         parcel.createStringArrayList()!!,
         parcel.readString().toString(),
-        parcel.createTypedArrayList(Task.CREATOR)
+        parcel.createTypedArrayList(Task.CREATOR)!!
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) = with(parcel) {
