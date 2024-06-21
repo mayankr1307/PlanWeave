@@ -7,6 +7,7 @@ import android.project.planweave.adapters.TaskListItemsAdapter
 import android.project.planweave.databinding.ActivityTaskListBinding
 import android.project.planweave.firebase.FireStoreClass
 import android.project.planweave.models.Board
+import android.project.planweave.models.Card
 import android.project.planweave.models.Task
 import android.project.planweave.utils.Constants
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -94,6 +95,29 @@ class TaskListActivity : BaseActivity() {
         mBoardDetails.taskList.add(0, task)
         mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1)
 
+        showProgressDialog("Please wait...")
+
+        FireStoreClass().addUpdateTaskList(this, mBoardDetails)
+    }
+
+    fun addCardToTaskList(position: Int, cardName: String) {
+        mBoardDetails.taskList.removeAt(mBoardDetails.taskList.size - 1)
+
+        val cardAssignedUsersList: ArrayList<String> = ArrayList()
+        cardAssignedUsersList.add(FireStoreClass().getCurrentUserId())
+
+        val card = Card(cardName, FireStoreClass().getCurrentUserId(), cardAssignedUsersList)
+
+        val cardsList = mBoardDetails.taskList[position].cards
+        cardsList.add(card)
+
+        val task = Task(
+            mBoardDetails.taskList[position].title,
+            mBoardDetails.taskList[position].createdBy,
+            cardsList
+        )
+
+        mBoardDetails.taskList[position] = task
         showProgressDialog("Please wait...")
 
         FireStoreClass().addUpdateTaskList(this, mBoardDetails)
