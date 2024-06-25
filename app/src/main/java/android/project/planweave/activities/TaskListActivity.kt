@@ -1,5 +1,6 @@
 package android.project.planweave.activities
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.project.planweave.R
@@ -10,6 +11,8 @@ import android.project.planweave.models.Board
 import android.project.planweave.models.Card
 import android.project.planweave.models.Task
 import android.project.planweave.utils.Constants
+import android.view.Menu
+import android.view.MenuItem
 import androidx.recyclerview.widget.LinearLayoutManager
 
 class TaskListActivity : BaseActivity() {
@@ -98,6 +101,22 @@ class TaskListActivity : BaseActivity() {
         showProgressDialog("Please wait...")
 
         FireStoreClass().addUpdateTaskList(this, mBoardDetails)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_members, menu)
+        return super.onCreateOptionsMenu(menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.action_members -> {
+                val intent = Intent(this@TaskListActivity, MembersActivity::class.java)
+                intent.putExtra(Constants.BOARD_DETAIL, mBoardDetails)
+                startActivity(intent)
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     fun addCardToTaskList(position: Int, cardName: String) {
