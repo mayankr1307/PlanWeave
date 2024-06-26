@@ -3,6 +3,7 @@ package android.project.planweave.firebase
 import android.app.Activity
 import android.project.planweave.activities.CreateBoardActivity
 import android.project.planweave.activities.MainActivity
+import android.project.planweave.activities.MembersActivity
 import android.project.planweave.activities.MyProfileActivity
 import android.project.planweave.activities.SignInActivity
 import android.project.planweave.activities.SignUpActivity
@@ -15,6 +16,7 @@ import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.firestore
 import com.google.firebase.firestore.toObject
 
 class FireStoreClass {
@@ -175,6 +177,33 @@ class FireStoreClass {
                     e ->
                 activity.hideProgressDialog()
                 Log.e(activity.javaClass.simpleName, "Error while creating board.", e)
+            }
+    }
+
+    fun getAssignedMembersListDetails(activity: MembersActivity, assignedTo: ArrayList<String>) {
+        mFireStore.collection(Constants.USERS)
+            .whereIn(Constants.ID, assignedTo)
+            .get()
+            .addOnSuccessListener {
+                document ->
+                Log.e(activity.javaClass.simpleName, document.documents.toString())
+
+                val usersList: ArrayList<User> = ArrayList()
+
+                for(i in document.documents) {
+                    val user = i.toObject(User::class.java)!!
+                    usersList.add(user)
+                }
+
+                activity.setupMembersList(usersList)
+            }.addOnFailureListener {e ->
+                activity.hideProgressDialog()
+                Log.e(
+                    activity.javaClass.simpleName,
+                    "Error while creating a board.",
+                    e
+                )
+                activity.showErrorSnackBar("Error while creating a board.")
             }
     }
 }

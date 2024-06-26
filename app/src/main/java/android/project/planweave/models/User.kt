@@ -9,39 +9,34 @@ data class User(
     val email: String = "",
     val image: String = "",
     val mobile: Long = 0,
-    val fcmToken: String = ""
-): Parcelable {
-    constructor(parcel: Parcel) : this(
-        parcel.readString()!!,
-        parcel.readString()!!,
-        parcel.readString()!!,
-        parcel.readString()!!,
-        parcel.readLong(),
-        parcel.readString()!!
-    ) {
+    val fcmToken: String = "",
+    var selected: Boolean = false
+) : Parcelable {
+    constructor(source: Parcel) : this(
+        source.readString()!!,
+        source.readString()!!,
+        source.readString()!!,
+        source.readString()!!,
+        source.readLong(),
+        source.readString()!!
+    )
+
+    override fun describeContents() = 0
+
+    override fun writeToParcel(dest: Parcel, flags: Int) = with(dest) {
+        writeString(id)
+        writeString(name)
+        writeString(email)
+        writeString(image)
+        writeLong(mobile)
+        writeString(fcmToken)
     }
 
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(id)
-        parcel.writeString(name)
-        parcel.writeString(email)
-        parcel.writeString(image)
-        parcel.writeLong(mobile)
-        parcel.writeString(fcmToken)
-    }
-
-    override fun describeContents(): Int {
-        return 0
-    }
-
-    companion object CREATOR : Parcelable.Creator<User> {
-        override fun createFromParcel(parcel: Parcel): User {
-            return User(parcel)
-        }
-
-        override fun newArray(size: Int): Array<User?> {
-            return arrayOfNulls(size)
+    companion object {
+        @JvmField
+        val CREATOR: Parcelable.Creator<User> = object : Parcelable.Creator<User> {
+            override fun createFromParcel(source: Parcel): User = User(source)
+            override fun newArray(size: Int): Array<User?> = arrayOfNulls(size)
         }
     }
-
 }
