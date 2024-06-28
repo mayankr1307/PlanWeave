@@ -1,5 +1,6 @@
 package android.project.planweave.activities
 
+import android.app.Activity
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -11,6 +12,7 @@ import android.project.planweave.models.Board
 import android.project.planweave.models.Card
 import android.project.planweave.models.Task
 import android.project.planweave.utils.Constants
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,21 +22,20 @@ class TaskListActivity : BaseActivity() {
     private var binding: ActivityTaskListBinding? = null
 
     private lateinit var mBoardDetails: Board
+    private lateinit var mBoardDocumentID: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityTaskListBinding.inflate(layoutInflater)
         setContentView(binding?.root)
 
-        var boardDocumentId = ""
         if(intent.hasExtra(Constants.DOCUMENT_ID)) {
-            boardDocumentId = intent.getStringExtra(Constants.DOCUMENT_ID).toString()
+            mBoardDocumentID = intent.getStringExtra(Constants.DOCUMENT_ID).toString()
         }
 
         showProgressDialog("Please wait...")
-        FireStoreClass().getBoardDetails(this@TaskListActivity, boardDocumentId)
+        FireStoreClass().getBoardDetails(this@TaskListActivity, mBoardDocumentID)
     }
-
     fun boardDetails(board: Board) {
         mBoardDetails = board
         hideProgressDialog()
@@ -113,7 +114,8 @@ class TaskListActivity : BaseActivity() {
             R.id.action_members -> {
                 val intent = Intent(this@TaskListActivity, MembersActivity::class.java)
                 intent.putExtra(Constants.BOARD_DETAIL, mBoardDetails)
-                startActivity(intent)
+                startActivityForResult(intent, MEMBER_REQUEST_CODE)
+                return true
             }
         }
         return super.onOptionsItemSelected(item)
@@ -140,6 +142,20 @@ class TaskListActivity : BaseActivity() {
         showProgressDialog("Please wait...")
 
         FireStoreClass().addUpdateTaskList(this, mBoardDetails)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(resultCode == Activity.RESULT_OK && requestCode == MEMBER_REQUEST_CODE) {
+            showProgressDialog("Please wait...")
+            FireStoreClass().getBoardDetails(this, mBoardDocumentID)
+        }else {
+            Log.e("Cancelled", "Cancelled")
+        }
+    }
+
+    companion object {
+        const val MEMBER_REQUEST_CODE: Int = 135
     }
     override fun onDestroy() {
         binding = null

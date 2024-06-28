@@ -13,4 +13,5 @@ object Constants {
     const val SELECT: String = "Select"
     const val UN_SELECT: String = "UnSelect"
     const val ID: String = "id"
+    const val EMAIL: String = "email"
 }

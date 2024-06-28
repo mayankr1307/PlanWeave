@@ -1,6 +1,8 @@
 package android.project.planweave.activities
 
+import android.app.Activity
 import android.app.Dialog
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.project.planweave.R
@@ -21,6 +23,8 @@ class MembersActivity : BaseActivity() {
 
     private var binding: ActivityMembersBinding? = null
     private lateinit var mBoardDetails: Board
+    private lateinit var mAssignedMembersList: ArrayList<User>
+    private  var anyChangesMade: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,6 +55,7 @@ class MembersActivity : BaseActivity() {
     }
 
     fun setupMembersList(list: ArrayList<User>) {
+        mAssignedMembersList = list
         hideProgressDialog()
         binding?.rvMembersList?.layoutManager = LinearLayoutManager(this)
         binding?.rvMembersList?.setHasFixedSize(true)
@@ -82,7 +87,8 @@ class MembersActivity : BaseActivity() {
 
             if(email.isNotEmpty()) {
                 dialog.dismiss()
-                // TODO implement adding member logic
+                showProgressDialog("Please wait...")
+                FireStoreClass().getMemberDetails(this, email)
             }else {
                 Toast.makeText(
                     this@MembersActivity,
@@ -97,6 +103,25 @@ class MembersActivity : BaseActivity() {
         }
 
         dialog.show()
+    }
+
+    fun memberDetails(user: User) {
+        mBoardDetails.assignedTo.add(user.id)
+        FireStoreClass().assignMemberToBoard(this, mBoardDetails, user)
+    }
+
+    fun memberAssignedSuccess(user: User) {
+        hideProgressDialog()
+        mAssignedMembersList.add(user)
+        setupMembersList(mAssignedMembersList)
+        anyChangesMade = true
+    }
+
+    override fun onBackPressed() {
+        if(anyChangesMade) {
+            setResult(Activity.RESULT_OK)
+        }
+        super.onBackPressed()
     }
 
     override fun onDestroy() {
