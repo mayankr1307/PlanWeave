@@ -13,7 +13,7 @@ open class CardListItemsAdapter (
     private val context: Context,
     private var list: ArrayList<Card>
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
-    private var onClickListener: View.OnClickListener? = null
+    private var onClickListener: OnClickListener? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return MyViewHolder(
@@ -34,7 +34,20 @@ open class CardListItemsAdapter (
 
         if(holder is MyViewHolder) {
             holder.itemView.findViewById<TextView>(R.id.tv_card_name).text = model.name
+
+            holder.itemView.setOnClickListener {
+                if(onClickListener != null) {
+                    onClickListener!!.onClick(position)
+                }
+            }
         }
+    }
+
+    fun setOnClickListener(onClickListener: OnClickListener) {
+        this.onClickListener = onClickListener
+    }
+    interface OnClickListener {
+        fun onClick(position: Int)
     }
 
     class MyViewHolder(view: View): RecyclerView.ViewHolder(view)

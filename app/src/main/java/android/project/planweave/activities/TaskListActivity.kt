@@ -154,6 +154,15 @@ class TaskListActivity : BaseActivity() {
         }
     }
 
+    fun cardDetails(taskListPosition: Int, cardPosition: Int) {
+        val intent = Intent(this, CardDetailsActivity::class.java)
+        intent.putExtra(Constants.BOARD_DETAIL, mBoardDetails)
+        intent.putExtra(Constants.TASK_LIST_ITEM_POSITION, taskListPosition)
+        intent.putExtra(Constants.CARD_LIST_ITEM_POSITION, cardPosition)
+
+        startActivity(intent)
+    }
+
     companion object {
         const val MEMBER_REQUEST_CODE: Int = 135
     }
