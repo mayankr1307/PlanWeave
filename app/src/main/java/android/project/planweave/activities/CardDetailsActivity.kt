@@ -2,7 +2,7 @@ package android.project.planweave.activities
 
 import android.app.Activity
 import android.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import android.graphics.Color
 import android.os.Bundle
 import android.project.planweave.R
 import android.project.planweave.databinding.ActivityCardDetailsBinding
@@ -22,6 +22,7 @@ class CardDetailsActivity : BaseActivity() {
     private lateinit var mBoardDetails: Board
     private var mTaskListPosition = -1
     private var mCardPosition = -1
+    private var mSelectedColor = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +34,11 @@ class CardDetailsActivity : BaseActivity() {
         binding?.etNameCardDetails?.setText(mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].name)
         binding?.etNameCardDetails?.setSelection(binding?.etNameCardDetails?.text.toString().length)
 
+        mSelectedColor = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].labelColor
+        if(mSelectedColor.isNotEmpty()) {
+            setColor()
+        }
+
         binding?.btnUpdateCardDetails?.setOnClickListener {
             if(binding?.etNameCardDetails?.text.toString().isNotEmpty()) {
                 updateCardDetails()
@@ -43,6 +49,9 @@ class CardDetailsActivity : BaseActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
+        }
+        binding?.tvSelectLabelColor?.setOnClickListener {
+            labelColorsListDialog()
         }
 
     }
@@ -58,6 +67,39 @@ class CardDetailsActivity : BaseActivity() {
         }
 
         binding?.toolbarCardDetailsActivity?.setNavigationOnClickListener { onBackPressed() }
+    }
+
+    private fun colorsList(): ArrayList<String> {
+
+        return arrayListOf(
+            "#FF5733",
+            "#33FF57",
+            "#5733FF",
+            "#33FFEC",
+            "#F633FF",
+            "#FF5733",
+            "#57FF33"
+        )
+    }
+
+    private fun setColor() {
+        binding?.tvSelectLabelColor?.text = ""
+        binding?.tvSelectLabelColor?.setBackgroundColor(Color.parseColor(mSelectedColor))
+    }
+
+    private fun labelColorsListDialog() {
+        val colorsList: ArrayList<String> = colorsList()
+        val listDialog = object: LabelColorListDialog(
+            this,
+            colorsList,
+            resources.getString(R.string.str_select_label_color),
+            mSelectedColor) {
+            override fun onItemSelected(color: String) {
+                mSelectedColor = color
+                setColor()
+            }
+        }
+        listDialog.show()
     }
 
     private fun getIntentData() {
@@ -90,7 +132,8 @@ class CardDetailsActivity : BaseActivity() {
         val card = Card(
             binding?.etNameCardDetails?.text.toString(),
             mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].createdBy,
-            mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo
+            mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo,
+            mSelectedColor
         )
         mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition] = card
         showProgressDialog("Please wait...")
