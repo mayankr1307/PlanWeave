@@ -2,7 +2,6 @@ package android.project.planweave.activities
 
 import android.app.Activity
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.project.planweave.R
 import android.project.planweave.adapters.TaskListItemsAdapter
@@ -11,6 +10,7 @@ import android.project.planweave.firebase.FireStoreClass
 import android.project.planweave.models.Board
 import android.project.planweave.models.Card
 import android.project.planweave.models.Task
+import android.project.planweave.models.User
 import android.project.planweave.utils.Constants
 import android.util.Log
 import android.view.Menu
@@ -23,6 +23,7 @@ class TaskListActivity : BaseActivity() {
 
     private lateinit var mBoardDetails: Board
     private lateinit var mBoardDocumentID: String
+    private lateinit var mAssignedMemberDetailList: ArrayList<User>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +55,9 @@ class TaskListActivity : BaseActivity() {
         val adapter = TaskListItemsAdapter(this, board.taskList)
 
         binding?.rvTaskList?.adapter = adapter
+
+        showProgressDialog("Please wait...")
+        FireStoreClass().getAssignedMembersListDetails(this@TaskListActivity, mBoardDetails.assignedTo)
     }
 
     private fun setupActionBar() {
@@ -159,8 +163,14 @@ class TaskListActivity : BaseActivity() {
         intent.putExtra(Constants.BOARD_DETAIL, mBoardDetails)
         intent.putExtra(Constants.TASK_LIST_ITEM_POSITION, taskListPosition)
         intent.putExtra(Constants.CARD_LIST_ITEM_POSITION, cardPosition)
+        intent.putExtra(Constants.BOARD_MEMBERS_LIST, mAssignedMemberDetailList)
 
         startActivityForResult(intent, CARD_DETAILS_REQUEST_CODE)
+    }
+
+    fun boardMembersDetailsList(list: ArrayList<User>) {
+        mAssignedMemberDetailList = list
+        hideProgressDialog()
     }
 
     companion object {

@@ -6,10 +6,13 @@ import android.graphics.Color
 import android.os.Bundle
 import android.project.planweave.R
 import android.project.planweave.databinding.ActivityCardDetailsBinding
+import android.project.planweave.dialogs.LabelColorListDialog
+import android.project.planweave.dialogs.MembersListDialog
 import android.project.planweave.firebase.FireStoreClass
 import android.project.planweave.models.Board
 import android.project.planweave.models.Card
 import android.project.planweave.models.Task
+import android.project.planweave.models.User
 import android.project.planweave.utils.Constants
 import android.view.Menu
 import android.view.MenuItem
@@ -20,6 +23,7 @@ class CardDetailsActivity : BaseActivity() {
     private var binding: ActivityCardDetailsBinding? = null
 
     private lateinit var mBoardDetails: Board
+    private lateinit var mMembersDetailList: ArrayList<User>
     private var mTaskListPosition = -1
     private var mCardPosition = -1
     private var mSelectedColor = ""
@@ -54,6 +58,40 @@ class CardDetailsActivity : BaseActivity() {
             labelColorsListDialog()
         }
 
+        binding?.tvSelectMembers?.setOnClickListener {
+            membersListDialog()
+        }
+
+    }
+
+    private fun membersListDialog() {
+        var cardAssignedMembersList = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo
+
+        if(cardAssignedMembersList.size > 0) {
+            for(i in mMembersDetailList.indices) {
+                for(j in cardAssignedMembersList) {
+                    if(mMembersDetailList[i].id == j) {
+                        mMembersDetailList[i].selected = true
+                    }
+                }
+            }
+        }else {
+            for(i in mMembersDetailList.indices) {
+                mMembersDetailList[i].selected = false
+            }
+        }
+
+        val listDialog = object: MembersListDialog(
+            this@CardDetailsActivity,
+            mMembersDetailList,
+            "Select Member",
+        ) {
+            override fun onItemSelected(user: User, action: String) {
+                // TODO implement the selected Members functionality
+            }
+        }
+
+        listDialog.show()
     }
 
     private fun setupActionBar() {
@@ -113,6 +151,10 @@ class CardDetailsActivity : BaseActivity() {
 
         if(intent.hasExtra(Constants.CARD_LIST_ITEM_POSITION)) {
             mCardPosition = intent.getIntExtra(Constants.CARD_LIST_ITEM_POSITION, -1)
+        }
+
+        if(intent.hasExtra(Constants.BOARD_MEMBERS_LIST)) {
+            mMembersDetailList = intent.getParcelableArrayListExtra(Constants.BOARD_MEMBERS_LIST)!!
         }
     }
 

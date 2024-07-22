@@ -1,4 +1,4 @@
-package android.project.planweave.activities
+package android.project.planweave.dialogs
 
 import android.app.Dialog
 import android.content.Context
