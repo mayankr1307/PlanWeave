@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 
 open class CardMemberListItemsAdapter
-    (private val context: Context, private val list: ArrayList<SelectedMembers>)
+    (private val context: Context, private val list: ArrayList<SelectedMembers>, private val assignMembers: Boolean)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>()
 {
     private var onClickListener: OnClickListener? = null
@@ -32,7 +32,7 @@ open class CardMemberListItemsAdapter
         val model = list[position]
 
         if(holder is MyViewHolder) {
-            if(position == list.size - 1) {
+            if(position == list.size - 1 && assignMembers) {
                 holder.itemView.findViewById<ImageView>(R.id.iv_add_member).visibility = View.VISIBLE
                 holder.itemView.findViewById<ImageView>(R.id.iv_selected_member_image).visibility = View.GONE
             }else {
@@ -63,7 +63,7 @@ open class CardMemberListItemsAdapter
     }
 
     fun setOnClickListener(OnClickListener: OnClickListener) {
-        this.onClickListener = onClickListener
+        this.onClickListener = OnClickListener
     }
 
     interface OnClickListener {

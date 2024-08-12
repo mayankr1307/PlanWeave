@@ -23,7 +23,7 @@ class TaskListActivity : BaseActivity() {
 
     private lateinit var mBoardDetails: Board
     private lateinit var mBoardDocumentID: String
-    private lateinit var mAssignedMemberDetailList: ArrayList<User>
+    lateinit var mAssignedMemberDetailList: ArrayList<User>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,19 +42,7 @@ class TaskListActivity : BaseActivity() {
         hideProgressDialog()
         setupActionBar()
 
-        val addTaskList = Task("add_list")
-        board.taskList.add(addTaskList)
 
-        binding?.rvTaskList?.layoutManager = LinearLayoutManager(
-            this@TaskListActivity,
-            LinearLayoutManager.HORIZONTAL,
-            false
-        )
-        binding?.rvTaskList?.setHasFixedSize(true)
-
-        val adapter = TaskListItemsAdapter(this, board.taskList)
-
-        binding?.rvTaskList?.adapter = adapter
 
         showProgressDialog("Please wait...")
         FireStoreClass().getAssignedMembersListDetails(this@TaskListActivity, mBoardDetails.assignedTo)
@@ -171,6 +159,20 @@ class TaskListActivity : BaseActivity() {
     fun boardMembersDetailsList(list: ArrayList<User>) {
         mAssignedMemberDetailList = list
         hideProgressDialog()
+
+        val addTaskList = Task("add_list")
+        mBoardDetails.taskList.add(addTaskList)
+
+        binding?.rvTaskList?.layoutManager = LinearLayoutManager(
+            this@TaskListActivity,
+            LinearLayoutManager.HORIZONTAL,
+            false
+        )
+        binding?.rvTaskList?.setHasFixedSize(true)
+
+        val adapter = TaskListItemsAdapter(this, mBoardDetails.taskList)
+
+        binding?.rvTaskList?.adapter = adapter
     }
 
     companion object {

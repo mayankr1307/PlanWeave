@@ -2,6 +2,7 @@ package android.project.planweave.activities
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.project.planweave.R
@@ -21,6 +22,10 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.recyclerview.widget.GridLayoutManager
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class CardDetailsActivity : BaseActivity() {
 
@@ -31,6 +36,7 @@ class CardDetailsActivity : BaseActivity() {
     private var mTaskListPosition = -1
     private var mCardPosition = -1
     private var mSelectedColor = ""
+    private var mSelectedDueDateMilliSeconds: Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +72,18 @@ class CardDetailsActivity : BaseActivity() {
             membersListDialog()
         }
 
+        mSelectedDueDateMilliSeconds = mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].dueDate
+
+        if(mSelectedDueDateMilliSeconds > 0) {
+            val simpleDateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+            val selectedDate = simpleDateFormat.format(Date(mSelectedDueDateMilliSeconds))
+            binding?.tvSelectDueDate?.text = selectedDate
+        }
+
+        binding?.tvSelectDueDate?.setOnClickListener {
+            showDatePicker()
+        }
+
     }
 
     private fun membersListDialog() {
@@ -91,7 +109,21 @@ class CardDetailsActivity : BaseActivity() {
             "Select Member",
         ) {
             override fun onItemSelected(user: User, action: String) {
-                // TODO implement the selected Members functionality
+                if(action == Constants.SELECT) {
+                    if(!mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo.contains(user.id)) {
+                        mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo.add(user.id)
+                    }
+                }else {
+                    mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo.remove(user.id)
+
+                    for(i in mMembersDetailList.indices) {
+                        if(mMembersDetailList[i].id == user.id) {
+                            mMembersDetailList[i].selected = false
+                        }
+                    }
+                }
+
+                setupSelectedMembersList()
             }
         }
 
@@ -179,8 +211,13 @@ class CardDetailsActivity : BaseActivity() {
             binding?.etNameCardDetails?.text.toString(),
             mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].createdBy,
             mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition].assignedTo,
-            mSelectedColor
+            mSelectedColor,
+            mSelectedDueDateMilliSeconds
         )
+
+        val taskList: ArrayList<Task> = mBoardDetails.taskList
+        taskList.removeAt(taskList.size - 1)
+
         mBoardDetails.taskList[mTaskListPosition].cards[mCardPosition] = card
         showProgressDialog("Please wait...")
         FireStoreClass().addUpdateTaskList(this@CardDetailsActivity, mBoardDetails)
@@ -259,7 +296,7 @@ class CardDetailsActivity : BaseActivity() {
                 6
             )
 
-            val adapter = CardMemberListItemsAdapter(this, selectedMembersList)
+            val adapter = CardMemberListItemsAdapter(this, selectedMembersList, true)
             binding?.rvSelectedMembersList?.adapter = adapter
             adapter.setOnClickListener(
                 object: CardMemberListItemsAdapter.OnClickListener{
@@ -272,6 +309,37 @@ class CardDetailsActivity : BaseActivity() {
             binding?.tvSelectMembers?.visibility = View.VISIBLE
             binding?.rvSelectedMembersList?.visibility = View.GONE
         }
+    }
+
+    private fun showDatePicker() {
+        val c = Calendar.getInstance()
+        val year =
+            c.get(Calendar.YEAR) // Returns the value of the given calendar field. This indicates YEAR
+        val month = c.get(Calendar.MONTH) // This indicates the Month
+        val day = c.get(Calendar.DAY_OF_MONTH) // This indicates the Day
+
+        val dpd = DatePickerDialog(
+            this,
+            DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+
+                val sDayOfMonth = if (dayOfMonth < 10) "0$dayOfMonth" else "$dayOfMonth"
+                val sMonthOfYear =
+                    if ((monthOfYear + 1) < 10) "0${monthOfYear + 1}" else "${monthOfYear + 1}"
+
+                val selectedDate = "$sDayOfMonth/$sMonthOfYear/$year"
+                binding?.tvSelectDueDate?.text = selectedDate
+
+                val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH)
+
+                val theDate = sdf.parse(selectedDate)
+
+                mSelectedDueDateMilliSeconds = theDate!!.time
+            },
+            year,
+            month,
+            day
+        )
+        dpd.show()
     }
 
     override fun onDestroy() {
